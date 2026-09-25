@@ -67,7 +67,7 @@ if ! command -v "$BWRAP_BIN" >/dev/null 2>&1; then
   # group. `command -v` reports "not found" identically whether the binary is
   # missing or merely unreadable/unexecutable by you, so check both cases.
   if [ -e "$BWRAP_BIN" ]; then
-    bwrap_group=$(stat -c '%G' "$BWRAP_BIN" 2>/dev/null || echo "$(id -gn)")
+    bwrap_group=$(stat -c '%G' "$BWRAP_BIN" 2>/dev/null || id -gn)
     echo "agent-bwrap: '$BWRAP_BIN' exists but you cannot execute it as $(id -un) (uid $(id -u))" >&2
     echo "  It is $(stat -c '%A %U:%G' "$BWRAP_BIN" 2>/dev/null). See README.md's" >&2
     echo "  'Host prerequisites' section for the AppArmor profile and uid model." >&2
