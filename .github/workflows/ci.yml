@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install bubblewrap
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bubblewrap
+
+      - name: Verify bwrap can create a user namespace
+        run: bwrap --unshare-user --uid 0 --gid 0 --ro-bind / / -- /bin/true
+
+      - name: Run test suite
+        run: |
+          chmod +x bin/agent-bwrap tests/run.sh
+          tests/run.sh
+
+      - name: Shellcheck
+        run: |
+          sudo apt-get install -y shellcheck
+          shellcheck bin/agent-bwrap tests/run.sh
