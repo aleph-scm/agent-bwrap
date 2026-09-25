@@ -49,8 +49,9 @@ relying on the agent's own good behavior.
   24.04's default, `kernel.apparmor_restrict_unprivileged_userns=1` — an
   AppArmor profile granting `userns` to the `bwrap` binary you point
   `BWRAP_BIN` at. See [`apparmor/agent-bwrap.profile.example`](apparmor/agent-bwrap.profile.example)
-  for a scoped profile and the install steps. Most other Linux distributions,
-  and most CI runners, do not need this step at all.
+  for a scoped profile and the install steps. Most other Linux distributions
+  do not need this step. GitHub's `ubuntu-latest` (24.04) runners do; this
+  repo's CI installs the profiled copy exactly as described.
 - A uid/group model where the account running `bin/agent-bwrap` can execute
   `BWRAP_BIN`. If you install a dedicated profiled copy (recommended over
   profiling the system binary), restrict it to a group scoped to the agents

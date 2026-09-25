@@ -16,8 +16,20 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y bubblewrap
 
+      # ubuntu-latest (24.04) sets kernel.apparmor_restrict_unprivileged_userns=1,
+      # so the system bwrap cannot create a user namespace. Install the scoped,
+      # profiled copy exactly as README.md and apparmor/ describe, instead of
+      # flipping the sysctl, so CI exercises the documented host setup.
+      - name: Install the profiled bwrap copy (README prerequisite)
+        run: |
+          sudo install -d -m 755 /usr/local/lib/agent-bwrap
+          sudo install -m 750 -o root -g "$(id -gn)" /usr/bin/bwrap /usr/local/lib/agent-bwrap/bwrap
+          sudo install -m 644 -o root -g root apparmor/agent-bwrap.profile.example /etc/apparmor.d/agent-bwrap
+          sudo apparmor_parser -r /etc/apparmor.d/agent-bwrap
+          echo "BWRAP_BIN=/usr/local/lib/agent-bwrap/bwrap" >> "$GITHUB_ENV"
+
       - name: Verify bwrap can create a user namespace
-        run: bwrap --unshare-user --uid 0 --gid 0 --ro-bind / / -- /bin/true
+        run: '"$BWRAP_BIN" --unshare-user --uid 0 --gid 0 --ro-bind / / -- /bin/true'
 
       - name: Run test suite
         run: |
